@@ -30,9 +30,50 @@ El controlador se encarga de mediar entre la vista y el modelo.
 """
 
 # Inicialización del Catálogo de libros
+def initCatalog(est_datos):
+    catalog = model.newCatalog(est_datos)
+    return catalog
 
 # Funciones para la carga de datos
+def loadData(catalog):
+    loadVideos(catalog)
+    loadCategory(catalog)
+    return None
 
+def loadVideos(catalog):
+    datos_videos = cf.data_dir + 'videos-5pct.csv'
+    input_file = csv.DictReader(open(datos_videos, encoding='utf-8'))
+    for video in input_file:
+        model.addVideo(catalog,video)
+    return None
+
+def loadCategory(catalog):
+    datos_category = cf.data_dir + 'category-id.csv'
+    input_file = csv.DictReader(open(datos_category, encoding='utf-8'), delimiter='\t')
+    for category in input_file:
+        model.addCategory(catalog, category)
+    return None
 # Funciones de ordenamiento
 
+def sort_sublist(catalog, numlen, category, country, tag, indicator):
+    if indicator == 1:
+        cat_id = model.getCategory_id(catalog, category)
+    else:
+        cat_id = None
+    return model.sort_sublist(catalog,numlen,cat_id, country, tag, indicator)
+
 # Funciones de consulta sobre el catálogo
+def getFirstVideo(catalog):
+    video_dict = model.getFirstVideo(catalog)
+    return video_dict
+
+def get_all_elements(catalog):
+    return model.get_all_elements(catalog)
+
+def mostTrendingVideo(catalog, attribute, indicator):
+    if indicator == 0:
+        result = model.mostTrendingVideo(catalog, attribute, indicator)
+    else:
+        cat_id = str(model.getCategory_id(catalog, attribute))
+        result = model.mostTrendingVideo(catalog, cat_id, indicator)
+    return result
