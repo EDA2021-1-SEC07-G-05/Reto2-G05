@@ -50,9 +50,12 @@ def printMenu():
 def initCatalog(est_datos):
     return controller.initCatalog(est_datos)
 
-def loadData(catalog):
-    controller.loadData(catalog)
-    return None
+def execute_loadData(catalog):
+    """
+    Ordena la ejecución de la carga de datos
+    """
+    answer = controller.loadData(catalog)
+    return answer
 
 def getFirstVideo(catalog):
     return controller.getFirstVideo(catalog)
@@ -123,9 +126,10 @@ while True:
         est_datos = 1
         print("Cargando información de los archivos ....")
         catalog = initCatalog(est_datos)
-        loadData(catalog)
+        answer = execute_loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])))
         print('Categorias cargadas: ' + str (mp.size(catalog['category'])))
+        print(f'Tiempo de ejecución [ms]: {answer[0]}   Espacio usado en la ejecución [KB]: {answer[1]}')
         
     elif int(inputs[0]) == 2:
         indicator = 1

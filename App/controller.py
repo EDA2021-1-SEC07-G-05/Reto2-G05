@@ -23,6 +23,8 @@
 import config as cf
 import model
 import csv
+import time
+import tracemalloc as tr
 
 
 """
@@ -36,9 +38,28 @@ def initCatalog(est_datos):
 
 # Funciones para la carga de datos
 def loadData(catalog):
+    """
+    Carga los datos en el catálogo ya inicializado
+    """
+    #Modificaciones para medir tiempo y espacio
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tr.start()
+    star_time = getTime()
+    start_memory = getMemory()
+
     loadVideos(catalog)
     loadCategory(catalog)
-    return None
+
+    stop_time = getTime()
+    stop_memory = getMemory()
+
+    delta_time = stop_time - star_time
+    delta_memory= deltaMemory(start_memory, stop_memory)
+    tr.stop()
+
+    return delta_time, delta_memory
 
 def loadVideos(catalog):
     datos_videos = cf.data_dir + 'videos-5pct.csv'
@@ -77,3 +98,32 @@ def mostTrendingVideo(catalog, attribute, indicator):
         cat_id = str(model.getCategory_id(catalog, attribute))
         result = model.mostTrendingVideo(catalog, cat_id, indicator)
     return result
+
+# Funciones ppara medir tiempo y memoria
+
+def getTime():
+    """
+    Devuelvo un tiempo determinado por el procesador
+    """
+    return float(time.perf_counter()*1000)
+
+def getMemory():
+    """
+    Devuelve una 'pantallazo' de la memoria usada
+    """
+    return tr.take_snapshot()
+
+def deltaMemory(star_memory, stop_memory):
+    """
+    Devuelve la diferencia entre dos magnitudes de memoria tomadas
+    en dos diferentes instantes. Las devuelve en KB
+    """
+    memory_diff = stop_memory.compare_to(star_memory, 'filename')
+    delta_memory = 0.0
+
+    for stat in memory_diff:
+        delta_memory = delta_memory + stat.size_diff
+
+    delta_memory /= 1024.0
+    return delta_memory
+    
