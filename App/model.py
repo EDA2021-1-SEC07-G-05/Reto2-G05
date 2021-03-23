@@ -45,17 +45,22 @@ los mismos.
 # Construccion de modelos
 
 def newCatalog(est_datos):
-    
+    """ 
+    Inicializa el catálogo que se va a usar para almacenar los datos del CSV
+    """
     if est_datos == 1:
         x = 'ARRAY_LIST'
     else:
         x = 'SINGLE_LINKED'
     catalog = {'videos': None,   
-               'category': None}
+               'category': None,
+               'VideosByCategory': None}
     
     catalog['videos'] = lt.newList(x, cmpfunction = cmpVideos)
 
     catalog['category'] = mp.newMap(32 ,maptype= 'PROBING', loadfactor= 0.5 , comparefunction=cmpVideosByCategory)
+    
+    catalog['VideosByCategory'] = mp.newMap(44, maptype='PROBING', loadfactor=0.5, comparefunction=cmpVideosByCategory)
     return catalog
 
 # Funciones para agregar informacion al catalogo
@@ -64,10 +69,37 @@ def addVideo(catalog, video):
     return None
 
 def addCategory(catalog, category):
+    """
+    Crea un mapa para los indices de cada categoria y además crea un mapa por ids de categoria
+    donde en cada entrada guarda un nuevo mapa
+    """
     cat = newCategory(category['name'], category['id'])
+    nuevo_mapa = mp.newMap(10, maptype='PROBING', loadfactor= 0.5, comparefunction=cmpVideosByCategory)
     mp.put(catalog['category'], cat['cat_name'], cat["cat_id"])
+    mp.put(catalog['VideosByCategory'], int(cat['cat_id']), nuevo_mapa)
     return None
 
+def addVideoByCategory(catalog, video):
+    """
+    Añade el video al mapa de mapas, en el primer mapa busca la categoria del video y dentro de este mapa
+    busca el pais para guardar el video en una lista dentro del mapa de paises que está dentro del mapa de categorías
+    """
+    pais = video['country']
+    category_id = int(video['category_id'])
+    entry = mp.get(catalog['VideosByCategory'], category_id)
+    mapa = me.getValue(entry)
+
+    if mp.contains(mapa, pais):
+        entry = mp.get(mapa, pais)
+        videos = me.getValue(entry)
+        lt.addFirst(videos, video)
+        mp.put(mapa, pais, videos)
+    else:
+        lista = lt.newList('SINGLE_LINKED', cmpfunction=cmpVideosByLikes)
+        lt.addFirst(lista, video)
+        mp.put(mapa, pais, lista)
+
+    return None
 # Funciones para creacion de datos
 
 def newCategory(name, ide):
@@ -163,14 +195,19 @@ def cmpVideosByLikes(video_1, video_2):
 # Funciones de ordenamiento
 
 def sort_sublist(catalog, numlen, category, country, tag, indicator):
+    """
+    Se usan los índices del doble mapa (categoría y país) para obtener de forma directa los datos que se necesitan ordenar
+    """
 
     lista_trabajo = lt.newList('SINGLE_LINKED')
 
     if indicator == 1:
-        function = cmpVideosByLikes
-        for i in lt.iterator(catalog['videos']):
-            if int(i['category_id']) == int(category):
-                lt.addFirst(lista_trabajo, i)
+        function = cmpVideosByViews
+        mapa_categoria = catalog['VideosByCategory']
+        entry_1 = mp.get(mapa_categoria, int(category))
+        mapa_pais = me.getValue(entry_1)
+        entry_2 = mp.get(mapa_pais, country)
+        lista_trabajo = me.getValue(entry_2)
     
     else:
         function = cmpVideosByLikes

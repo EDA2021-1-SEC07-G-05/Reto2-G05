@@ -136,14 +136,14 @@ while True:
         numlen = int(input('Digite la cantidad de videos con más likes que desea consultar:\n'))
         category = input('Digite la categoria que desea consultar:\n')
         category = ' '+category
-        result = sort_sublist(catalog, numlen, category, None, None, indicator)
+        country = input('Digite el pais sobre el cual desea realizar la consulta:\n')
+        result = sort_sublist(catalog, numlen, category, country, None, indicator)
 
         try:
             pos = 1
             for i in lt.iterator(result):
-                print(f'Video número {pos}')
-                print(view_req1(i))
-                print('\n')
+                print(f'\nVideo número {pos}')
+                print(f'Título: {view_req1(i)[0]}\nCanal: {view_req1(i)[1]}\nFecha de publicación: {view_req1(i)[2]}\nViews: {view_req1(i)[3]}\nLikes: {view_req1(i)[4]}\nDislikes: {view_req1(i)[5]}\nTags: {view_req1(i)[6]}\n')
                 pos += 1
         except:
             print(result)

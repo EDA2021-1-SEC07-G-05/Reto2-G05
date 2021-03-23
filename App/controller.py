@@ -49,8 +49,8 @@ def loadData(catalog):
     star_time = getTime()
     start_memory = getMemory()
 
-    loadVideos(catalog)
     loadCategory(catalog)
+    loadVideos(catalog)
 
     stop_time = getTime()
     stop_memory = getMemory()
@@ -66,6 +66,7 @@ def loadVideos(catalog):
     input_file = csv.DictReader(open(datos_videos, encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog,video)
+        model.addVideoByCategory(catalog, video)
     return None
 
 def loadCategory(catalog):
