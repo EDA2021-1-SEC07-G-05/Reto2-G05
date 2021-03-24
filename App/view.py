@@ -153,7 +153,7 @@ while True:
         country = input('Registre el país sobre el cual desea hacer la consulta:\n')
         print('Estamos trabajando duro para entregarte los resultados, por favor espera unos segundos...')
         result = mostTrendingVideo(catalog, country, indicator)
-        print(view_req2(result))
+        print(f'\nVIDEO TENDENCIA\nTítulo: {view_req2(result)[0]}\nCanal: {view_req2(result)[1]}\nPaís: {view_req2(result)[2]}\nDías de tendencia: {view_req2(result)[3]}\n')
     
     elif int(inputs[0]) == 4: 
         indicator = 1
