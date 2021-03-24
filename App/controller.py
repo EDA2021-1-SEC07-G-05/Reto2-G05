@@ -62,17 +62,25 @@ def loadData(catalog):
     return delta_time, delta_memory
 
 def loadVideos(catalog):
+    """
+    Carga los diferentes videos a las diferentes estructuras del catálogo
+    """
     datos_videos = cf.data_dir + 'videos-5pct.csv'
     input_file = csv.DictReader(open(datos_videos, encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog,video)
         model.addVideoByCategory(catalog, video)
+        model.addVideoByCountry(catalog, video)
     return None
 
 def loadCategory(catalog):
+    """
+    Edita y prepara los datos de las categorias para luego cargarlos en las diferentes estructuras del catálogo
+    """
     datos_category = cf.data_dir + 'category-id.csv'
     input_file = csv.DictReader(open(datos_category, encoding='utf-8'), delimiter='\t')
     for category in input_file:
+        category['name'] = category['name'].strip(' ')
         model.addCategory(catalog, category)
     return None
 # Funciones de ordenamiento

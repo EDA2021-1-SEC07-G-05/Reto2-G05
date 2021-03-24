@@ -54,13 +54,16 @@ def newCatalog(est_datos):
         x = 'SINGLE_LINKED'
     catalog = {'videos': None,   
                'category': None,
-               'VideosByCategory': None}
+               'VideosByCategory': None,
+               'VideosByCountry': None}
     
     catalog['videos'] = lt.newList(x, cmpfunction = cmpVideos)
 
     catalog['category'] = mp.newMap(32 ,maptype= 'PROBING', loadfactor= 0.5 , comparefunction=cmpVideosByCategory)
     
     catalog['VideosByCategory'] = mp.newMap(44, maptype='PROBING', loadfactor=0.5, comparefunction=cmpVideosByCategory)
+
+    catalog['VideosByCountry'] = mp.newMap(10, maptype= 'PROBING', loadfactor= 0.5, comparefunction= cmpVideosByCountry)
     return catalog
 
 # Funciones para agregar informacion al catalogo
@@ -100,6 +103,21 @@ def addVideoByCategory(catalog, video):
         mp.put(mapa, pais, lista)
 
     return None
+
+def addVideoByCountry(catalog, video):
+    country = video['country']
+    mapa = catalog['VideosByCountry']
+    if mp.contains(mapa, country):
+        entry = mp.get(mapa, country)
+        videos = me.getValue(entry)
+        lt.addFirst(videos, video)
+        mp.put(mapa, country, videos)
+    else:
+        videos = lt.newList('SINGLE_LIKED', cmpfunction= cmpVideos)
+        lt.addFirst(videos, video)
+        mp.put(mapa, country, videos)
+        
+    return None
 # Funciones para creacion de datos
 
 def newCategory(name, ide):
@@ -130,14 +148,18 @@ def mostTrendingVideo(catalog, attribute, indicator):
     lista_trabajo = lt.newList('SINGLE_LINKED', cmpVideos)
 
     if indicator == 0:
-        for video in lt.iterator(catalog['videos']):
-            if lt.isPresent(lista_trabajo, video) != 0:
-                pos = lt.isPresent(lista_trabajo, video)
-                lt.getElement(lista_trabajo, pos)['trending_days'] += 1
-
-            elif video['country'] == attribute:
+        key = attribute
+        entry = mp.get(catalog['VideosByCountry'], key)
+        videos = me.getValue(entry)
+        for video in lt.iterator(videos):
+            pos = lt.isPresent(lista_trabajo, video)
+            if pos == 0:
                 lt.addFirst(lista_trabajo, video)
                 lt.firstElement(lista_trabajo)['trending_days'] = 1
+            else:
+                lt.getElement(lista_trabajo, pos)['trending_days'] += 1
+
+
 
     else: 
         for video in lt.iterator(catalog['videos']):
@@ -192,6 +214,16 @@ def cmpVideosByLikes(video_1, video_2):
     else:
         valor = False
     return valor
+
+def cmpVideosByCountry(keyname, pair):
+    country = me.getKey(pair)
+    if keyname == country:
+        return 0
+    elif keyname > country:
+        return 1
+    else:
+        return 0
+
 # Funciones de ordenamiento
 
 def sort_sublist(catalog, numlen, category, country, tag, indicator):
