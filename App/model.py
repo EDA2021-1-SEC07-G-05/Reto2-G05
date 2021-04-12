@@ -105,6 +105,10 @@ def addVideoByCategory(catalog, video):
     return None
 
 def addVideoByCountry(catalog, video):
+    """
+    Añada cada video a  la lista guardada en en cada pareja llave valor, es decir, en cada llave (país) se 'guarda' 
+    una lista con los videos que tienen como característica común el país.
+    """
     country = video['country']
     mapa = catalog['VideosByCountry']
     if mp.contains(mapa, country):

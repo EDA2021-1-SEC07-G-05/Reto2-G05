@@ -135,7 +135,6 @@ while True:
         indicator = 1
         numlen = int(input('Digite la cantidad de videos con más likes que desea consultar:\n'))
         category = input('Digite la categoria que desea consultar:\n')
-        category = ' '+category
         country = input('Digite el pais sobre el cual desea realizar la consulta:\n')
         result = sort_sublist(catalog, numlen, category, country, None, indicator)
 
