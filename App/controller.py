@@ -68,6 +68,7 @@ def loadVideos(catalog):
     datos_videos = cf.data_dir + 'videos-5pct.csv'
     input_file = csv.DictReader(open(datos_videos, encoding='utf-8'))
     for video in input_file:
+        video['tags'] = (video['tags'].lower()).split('|')
         model.addVideo(catalog,video)
         model.addVideoByCategory(catalog, video)
         model.addVideoByCountry(catalog, video)

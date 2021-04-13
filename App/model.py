@@ -68,7 +68,15 @@ def newCatalog(est_datos):
 
 # Funciones para agregar informacion al catalogo
 def addVideo(catalog, video):
+    addTagVideo(video)
     lt.addLast(catalog['videos'], video)
+    return None
+
+def addTagVideo(video):
+    lista = lt.newList(datastructure = 'SINGLE_LINKED', cmpfunction = cmpTags)
+    for tag in video['tags']:
+        lt.addLast(lista, tag)
+    video['tags'] = lista
     return None
 
 def addCategory(catalog, category):
@@ -181,6 +189,14 @@ def mostTrendingVideo(catalog, attribute, indicator):
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
+def cmpTags(tag_1, tag_2):
+    if tag_1 == tag_2:
+        return 0
+    elif tag_1 > tag_2:
+        return 1
+    else:
+        return -1
+
 def cmpVideosByCategory(keyname, category):
     catentry = me.getKey(category)
     if keyname == catentry:
@@ -247,9 +263,14 @@ def sort_sublist(catalog, numlen, category, country, tag, indicator):
     
     else:
         function = cmpVideosByLikes
-        for i in lt.iterator(catalog['videos']):
-            if i['country'] == country and (tag in i['tags']):
-                lt.addFirst(lista_trabajo, i)
+        key = country
+        entry = mp.get(catalog['VideosByCountry'], key)
+        videos = me.getValue(entry)
+        for video in lt.iterator(videos):
+            for Tag in lt.iterator(video['tags']):
+                if tag in Tag:
+                    lt.addFirst(lista_trabajo, video)
+                    break
 
 
     sorted_list = mg.sort(lista_trabajo, function)
