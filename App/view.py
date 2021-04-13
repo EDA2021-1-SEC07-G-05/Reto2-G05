@@ -112,7 +112,11 @@ def view_req4(diccionario):
     views = diccionario['views']
     likes = diccionario['likes']
     dislikes = diccionario['dislikes']
-    tags = diccionario['tags']
+    string = ''
+    for tag in lt.iterator(diccionario['tags']):
+        string += '|'+tag
+
+    tags = string
 
     return title, cannel_title, publish_time, views, likes, dislikes, tags
 
@@ -135,7 +139,6 @@ while True:
         indicator = 1
         numlen = int(input('Digite la cantidad de videos con más likes que desea consultar:\n'))
         category = input('Digite la categoria que desea consultar:\n')
-        category = ' '+category
         country = input('Digite el pais sobre el cual desea realizar la consulta:\n')
         result = sort_sublist(catalog, numlen, category, country, None, indicator)
 
@@ -153,7 +156,7 @@ while True:
         country = input('Registre el país sobre el cual desea hacer la consulta:\n')
         print('Estamos trabajando duro para entregarte los resultados, por favor espera unos segundos...')
         result = mostTrendingVideo(catalog, country, indicator)
-        print(view_req2(result))
+        print(f'\nVIDEO TENDENCIA ENCONTRADO\nTítulo: {view_req2(result)[0]}\nCanal: {view_req2(result)[1]}\nPaís: {view_req2(result)[2]}\nDías de tendencia: {view_req2(result)[3]}\n')
     
     elif int(inputs[0]) == 4: 
         indicator = 1
@@ -164,17 +167,16 @@ while True:
     
     elif int(inputs[0]) == 5:
         indicator = 0
-        tag = input('Registre el tag sobre el cual desea hacer la consulta:\n')
+        tag = input('Registre el tag sobre el cual desea hacer la consulta:\n').lower()
         country = input('Registre el país sobre el cual desea hacer la consulta:\n')
         numlen = int(input('Registre la cantidad de videos con más views que desea consultar:\n'))
         print('Estamos trabajando duro para entregarte los resultados, por favor espera unos segundos...')
         result = sort_sublist(catalog, numlen, 'no aplica', country, tag, indicator)
-        
         try:
             pos = 1
             for i in lt.iterator(result):
                 print(f'Video número {pos}')
-                print(view_req4(i))
+                print(f'Título: {view_req4(i)[0]}\nCanal: {view_req4(i)[1]}\nFecha: {view_req4(i)[2]}\nViews: {view_req4(i)[3]}\nLikes: {view_req4(i)[4]}\nDislike: {view_req4(i)[5]}\nTags: {view_req4(i)[6]}')
                 print('\n')
                 pos += 1
         except:
