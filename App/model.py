@@ -30,11 +30,8 @@ import time
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
-from DISClib.Algorithms.Sorting import shellsort as sa
-from DISClib.Algorithms.Sorting import insertionsort as ins
-from DISClib.Algorithms.Sorting import selectionsort as slc
 from DISClib.Algorithms.Sorting import mergesort as mg 
-from DISClib.Algorithms.Sorting import quicksort as qc
+
 assert cf
 
 """
@@ -55,7 +52,8 @@ def newCatalog(est_datos):
     catalog = {'videos': None,   
                'category': None,
                'VideosByCategory': None,
-               'VideosByCountry': None}
+               'VideosByCountry': None,
+               'VideosByCat_id': None}
     
     catalog['videos'] = lt.newList(x, cmpfunction = cmpVideos)
 
@@ -64,9 +62,13 @@ def newCatalog(est_datos):
     catalog['VideosByCategory'] = mp.newMap(44, maptype='PROBING', loadfactor=0.5, comparefunction=cmpVideosByCategory)
 
     catalog['VideosByCountry'] = mp.newMap(10, maptype= 'PROBING', loadfactor= 0.5, comparefunction= cmpVideosByCountry)
+
+    catalog ['VideosByCat_id'] = mp.newMap(32, maptype= 'PROBING', loadfactor= 0.5, comparefunction= cmpVideosByCategory)
+
     return catalog
 
 # Funciones para agregar informacion al catalogo
+
 def addVideo(catalog, video):
     addTagVideo(video)
     lt.addLast(catalog['videos'], video)
@@ -81,11 +83,11 @@ def addTagVideo(video):
 
 def addCategory(catalog, category):
     """
-    Crea un mapa para los indices de cada categoria y además crea un mapa por ids de categoria
-    donde en cada entrada guarda un nuevo mapa
+    Crea un mapa para los indices de cada categoria y además crea un mapa por id de categoría
+    donde en cada entrada guarda un nuevo mapa.
     """
     cat = newCategory(category['name'], category['id'])
-    nuevo_mapa = mp.newMap(10, maptype='PROBING', loadfactor= 0.5, comparefunction=cmpVideosByCategory)
+    nuevo_mapa = mp.newMap(30, maptype='PROBING', loadfactor= 0.5, comparefunction=cmpVideosByCategory)
     mp.put(catalog['category'], cat['cat_name'], cat["cat_id"])
     mp.put(catalog['VideosByCategory'], int(cat['cat_id']), nuevo_mapa)
     return None
@@ -93,19 +95,19 @@ def addCategory(catalog, category):
 def addVideoByCategory(catalog, video):
     """
     Añade el video al mapa de mapas, en el primer mapa busca la categoria del video y dentro de este mapa
-    busca el pais para guardar el video en una lista dentro del mapa de paises que está dentro del mapa de categorías
+    busca el pais para guardar el video en una lista dentro del mapa de paises que está dentro del mapa de categorías.
     """
     pais = video['country']
     category_id = int(video['category_id'])
     entry = mp.get(catalog['VideosByCategory'], category_id)
-    mapa = me.getValue(entry)
+    mapa = me.getValue(entry) 
 
-    if mp.contains(mapa, pais):
-        entry = mp.get(mapa, pais)
-        videos = me.getValue(entry)
+    if mp.contains(mapa, pais): 
+        entry = mp.get(mapa, pais)  
+        videos = me.getValue(entry)  
         lt.addFirst(videos, video)
-        mp.put(mapa, pais, videos)
-    else:
+        mp.put(mapa, pais, videos) 
+    else: 
         lista = lt.newList('SINGLE_LINKED', cmpfunction=cmpVideosByLikes)
         lt.addFirst(lista, video)
         mp.put(mapa, pais, lista)
@@ -114,22 +116,40 @@ def addVideoByCategory(catalog, video):
 
 def addVideoByCountry(catalog, video):
     """
-    Añada cada video a  la lista guardada en en cada pareja llave valor, es decir, en cada llave (país) se 'guarda' 
+    Añade cada video a la lista guardada en cada pareja llave valor, es decir, en cada llave (país) se 'guarda' 
     una lista con los videos que tienen como característica común el país.
     """
     country = video['country']
     mapa = catalog['VideosByCountry']
     if mp.contains(mapa, country):
-        entry = mp.get(mapa, country)
-        videos = me.getValue(entry)
+        entry = mp.get(mapa, country) 
+        videos = me.getValue(entry)  
         lt.addFirst(videos, video)
-        mp.put(mapa, country, videos)
+        mp.put(mapa, country, videos)  
     else:
         videos = lt.newList('SINGLE_LIKED', cmpfunction= cmpVideos)
         lt.addFirst(videos, video)
         mp.put(mapa, country, videos)
         
     return None
+
+def addVideoByCat_id(catalog, video): 
+    """
+    Añade cada video a una lista que esta guardada en la llave correspondiente a su id de categoria.
+    Es decir, en cada lista se guardara una serie de videos donde tengan como caracteristica similar el id.
+    """
+    cat_id = (video['category_id'])
+    if mp.contains(catalog['VideosByCat_id'], cat_id):
+        entry = mp.get(catalog['VideosByCat_id'], cat_id)
+        videos = me.getValue(entry)
+        lt.addFirst(videos, video)
+        mp.put(catalog['VideosByCat_id'], cat_id, videos)
+    else:
+        videos = lt.newList('SINGLE_LINKED', cmpfunction= cmpVideos)
+        lt.addFirst(videos, video)
+        mp.put(catalog['VideosByCat_id'], cat_id, videos)
+    return None 
+
 # Funciones para creacion de datos
 
 def newCategory(name, ide):
@@ -138,48 +158,36 @@ def newCategory(name, ide):
     return category
 
 # Funciones de consulta
-def getFirstVideo(catalog):
-    return lt.firstElement(catalog['videos'])
-    
-def getCategory_id(catalog, category):
 
+def getCategory_id(catalog, category):
     cat_id= mp.get(catalog['category'], category)
     if cat_id:
         return me.getValue(cat_id)
     return None
 
-def get_all_elements(catalog):
-    resultado = list()
-    for i in lt.iterator(catalog):
-        pos = 1
-        resultado.append(lt.getElement(catalog, pos))
-        pos += 1
-    return resultado
-
 def mostTrendingVideo(catalog, attribute, indicator):
     lista_trabajo = lt.newList('SINGLE_LINKED', cmpVideos)
 
     if indicator == 0:
-        key = attribute
-        entry = mp.get(catalog['VideosByCountry'], key)
-        videos = me.getValue(entry)
+        key = attribute  
+        entry = mp.get(catalog['VideosByCountry'], key) 
+        videos = me.getValue(entry)  
         for video in lt.iterator(videos):
-            pos = lt.isPresent(lista_trabajo, video)
+            pos = lt.isPresent(lista_trabajo, video) 
             if pos == 0:
                 lt.addFirst(lista_trabajo, video)
                 lt.firstElement(lista_trabajo)['trending_days'] = 1
             else:
                 lt.getElement(lista_trabajo, pos)['trending_days'] += 1
 
-
-
     else: 
-        for video in lt.iterator(catalog['videos']):
-            if lt.isPresent(lista_trabajo, video) != 0:
-                pos = lt.isPresent(lista_trabajo, video)
+        entry = mp.get(catalog['VideosByCat_id'], attribute)
+        videos = me.getValue(entry)
+        for video in lt.iterator(videos):
+            pos = lt.isPresent(lista_trabajo, video)
+            if pos != 0:
                 lt.getElement(lista_trabajo, pos)['trending_days'] += 1
-
-            elif video['category_id'] == attribute:
+            else:
                 lt.addFirst(lista_trabajo, video)
                 lt.firstElement(lista_trabajo)['trending_days'] = 1
 
@@ -250,16 +258,15 @@ def sort_sublist(catalog, numlen, category, country, tag, indicator):
     """
     Se usan los índices del doble mapa (categoría y país) para obtener de forma directa los datos que se necesitan ordenar
     """
-
     lista_trabajo = lt.newList('SINGLE_LINKED')
 
     if indicator == 1:
         function = cmpVideosByViews
         mapa_categoria = catalog['VideosByCategory']
-        entry_1 = mp.get(mapa_categoria, int(category))
-        mapa_pais = me.getValue(entry_1)
-        entry_2 = mp.get(mapa_pais, country)
-        lista_trabajo = me.getValue(entry_2)
+        entry_1 = mp.get(mapa_categoria, int(category)) 
+        mapa_pais = me.getValue(entry_1) 
+        entry_2 = mp.get(mapa_pais, country) 
+        lista_trabajo = me.getValue(entry_2) 
     
     else:
         function = cmpVideosByLikes
@@ -272,11 +279,9 @@ def sort_sublist(catalog, numlen, category, country, tag, indicator):
                     lt.addFirst(lista_trabajo, video)
                     break
 
-
     sorted_list = mg.sort(lista_trabajo, function)
     try:
         resultado = lt.subList(sorted_list,1,numlen)
     except:
         resultado = 'No existen tantos videos, intente con un número más pequeño...'
     return resultado
-## Final

@@ -72,6 +72,7 @@ def loadVideos(catalog):
         model.addVideo(catalog,video)
         model.addVideoByCategory(catalog, video)
         model.addVideoByCountry(catalog, video)
+        model.addVideoByCat_id(catalog, video)
     return None
 
 def loadCategory(catalog):
@@ -84,6 +85,7 @@ def loadCategory(catalog):
         category['name'] = category['name'].strip(' ')
         model.addCategory(catalog, category)
     return None
+    
 # Funciones de ordenamiento
 
 def sort_sublist(catalog, numlen, category, country, tag, indicator):
@@ -94,12 +96,6 @@ def sort_sublist(catalog, numlen, category, country, tag, indicator):
     return model.sort_sublist(catalog,numlen,cat_id, country, tag, indicator)
 
 # Funciones de consulta sobre el catálogo
-def getFirstVideo(catalog):
-    video_dict = model.getFirstVideo(catalog)
-    return video_dict
-
-def get_all_elements(catalog):
-    return model.get_all_elements(catalog)
 
 def mostTrendingVideo(catalog, attribute, indicator):
     if indicator == 0:

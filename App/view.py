@@ -57,45 +57,30 @@ def execute_loadData(catalog):
     answer = controller.loadData(catalog)
     return answer
 
-def getFirstVideo(catalog):
-    return controller.getFirstVideo(catalog)
-
 def sort_sublist(catalog, numlen, category, country, tag, indicator):
     return controller.sort_sublist(catalog, numlen, category, country, tag, indicator)
 
-def get_all_elements(catalog):
-    return controller.get_all_elements(catalog)
-
 def mostTrendingVideo(catalog, attribute, indicator):
     return controller.mostTrendingVideo(catalog, attribute, indicator)
+
+def view_req1(diccionario):
+    title = diccionario['title']
+    cannel_title = diccionario['channel_title']
+    publish_time = diccionario['publish_time']
+    trending_date = diccionario ['trending_date']
+    views = diccionario['views']
+    likes = diccionario['likes']
+    dislikes = diccionario['dislikes']
+
+    return title, cannel_title, publish_time, views, likes, dislikes, trending_date
 
 def view_req2(diccionario):
     title = diccionario['title']
     cannel_title = diccionario['channel_title']
     country = diccionario['country']
     days = diccionario['trending_days']
+
     return title, cannel_title, country, days
-
-def view_req1(diccionario):
-    title = diccionario['title']
-    cannel_title = diccionario['channel_title']
-    publish_time = diccionario['publish_time']
-    views = diccionario['views']
-    likes = diccionario['likes']
-    dislikes = diccionario['dislikes']
-    tags = diccionario['tags']
-    return title, cannel_title, publish_time, views, likes, dislikes, tags
-
-def primerVideo(diccionario):
-    title = diccionario['title']
-    cannel_title = diccionario['channel_title']
-    trending_date = diccionario['trending_date']
-    country = diccionario['country']
-    views = diccionario['views']
-    likes = diccionario['likes']
-    dislikes = diccionario['dislikes']
-
-    return title, cannel_title, trending_date, country, views, likes, dislikes
 
 def view_req3(diccionario):
     title = diccionario['title']
@@ -146,7 +131,7 @@ while True:
             pos = 1
             for i in lt.iterator(result):
                 print(f'\nVideo número {pos}')
-                print(f'Título: {view_req1(i)[0]}\nCanal: {view_req1(i)[1]}\nFecha de publicación: {view_req1(i)[2]}\nViews: {view_req1(i)[3]}\nLikes: {view_req1(i)[4]}\nDislikes: {view_req1(i)[5]}\nTags: {view_req1(i)[6]}\n')
+                print(f'Título: {view_req1(i)[0]}\nCanal: {view_req1(i)[1]}\nFecha de publicación: {view_req1(i)[2]}\nViews: {view_req1(i)[3]}\nLikes: {view_req1(i)[4]}\nDislikes: {view_req1(i)[5]}\nFecha de tendencia: {view_req1(i)[6]}\n')
                 pos += 1
         except:
             print(result)
@@ -163,7 +148,8 @@ while True:
         category_name = input('Registre la categoría sobre la cual desea hacer la consulta:\n')
         print('Estamos trabajando duro para entregarte los resultados, por favor espera unos segundos...')
         result = mostTrendingVideo(catalog, category_name, indicator)
-        print (view_req3(result))
+        print(f'\nVIDEO TENDENCIA SEGÚN CATEGORÍA\nTítulo: {view_req3(result)[0]}\nCanal: {view_req3(result)[1]}\nIdentificador de categoría: {view_req3(result)[2]}\nDías de tendencia: {view_req3(result)[3]}\n')
+        
     
     elif int(inputs[0]) == 5:
         indicator = 0
