@@ -57,13 +57,13 @@ def newCatalog(est_datos):
     
     catalog['videos'] = lt.newList(x, cmpfunction = cmpVideos)
 
-    catalog['category'] = mp.newMap(32 ,maptype= 'PROBING', loadfactor= 0.5 , comparefunction=cmpVideosByCategory)
+    catalog['category'] = mp.newMap(32 ,maptype= 'PROBING', loadfactor= 0.3 , comparefunction=cmpVideosByCategory)
     
-    catalog['VideosByCategory'] = mp.newMap(44, maptype='PROBING', loadfactor=0.5, comparefunction=cmpVideosByCategory)
+    catalog['VideosByCategory'] = mp.newMap(44, maptype='PROBING', loadfactor=0.3, comparefunction=cmpVideosByCategory)
 
-    catalog['VideosByCountry'] = mp.newMap(10, maptype= 'PROBING', loadfactor= 0.5, comparefunction= cmpVideosByCountry)
+    catalog['VideosByCountry'] = mp.newMap(10, maptype= 'PROBING', loadfactor= 0.3, comparefunction= cmpVideosByCountry)
 
-    catalog ['VideosByCat_id'] = mp.newMap(32, maptype= 'PROBING', loadfactor= 0.5, comparefunction= cmpVideosByCategory)
+    catalog ['VideosByCat_id'] = mp.newMap(32, maptype= 'PROBING', loadfactor= 0.3, comparefunction= cmpVideosByCategory)
 
     return catalog
 
@@ -87,7 +87,7 @@ def addCategory(catalog, category):
     donde en cada entrada guarda un nuevo mapa.
     """
     cat = newCategory(category['name'], category['id'])
-    nuevo_mapa = mp.newMap(30, maptype='PROBING', loadfactor= 0.5, comparefunction=cmpVideosByCategory)
+    nuevo_mapa = mp.newMap(30, maptype='PROBING', loadfactor= 0.3, comparefunction=cmpVideosByCategory)
     mp.put(catalog['category'], cat['cat_name'], cat["cat_id"])
     mp.put(catalog['VideosByCategory'], int(cat['cat_id']), nuevo_mapa)
     return None
